@@ -33,7 +33,7 @@ end
 
 -- Function to update the vault token by running the command
 local function update_vault_token()
-  local cmd = 'vault login -method=oidc -address=https://vault.s.o3.ru:8200'
+  local cmd = 'vault login -method=oidc -address=https://vault.s.o3.ru:8200 /dev/null 2>&1'
   local handle = io.popen(cmd)
   local result = handle:read '*a'
   local success = handle:close()
@@ -61,12 +61,13 @@ function M.set_vault_token()
   local vault_respone = update_vault_token()
   local got_token = extract_token(vault_respone)
   set_env_variable_if_value_not_nil(vault_token_storage, got_token)
+  print('Environment variable', vault_env_name, ' set to: ' .. got_token)
 end
 
 function M.set_mesh_version_env(value)
   if value then
     set_env_variable_if_value_not_nil(mesh_version_env_name, value)
-    print('Environment variable', mesh_version_env_name, ' set to: ' .. value)
+    print('Environment variable', vault_env_name, ' set to: ' .. value)
   else
     print('No value provided for', mesh_version_env_name, 'environment variable.')
   end
@@ -76,7 +77,7 @@ end
 vim.api.nvim_create_user_command('Vault', M.set_vault_token, { desc = 'Set Vault token' })
 vim.api.nvim_create_user_command('SetMeshVerionEnv', function(opts)
   M.set_mesh_version_env(opts.args)
-end, { nargs = 1, complete = 'file' })
+end, { nargs = 1, complete = 'file', desc = 'Set CI_COMMIT_BRANCH env variable' })
 
 ---@type LazySpec
 return {
