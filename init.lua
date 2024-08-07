@@ -83,7 +83,7 @@ I hope you enjoy your Neovim journey,
 
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
-
+--
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -208,7 +208,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
---    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
+--    See `:help lazy.nvim.txt` or https://grelease/v0.9.26release/v0.9.26release/v0.9.26release/v0.9.26release/v0.9.26ithub.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
@@ -262,6 +262,56 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    init = function()
+      local gitsigns = require 'gitsigns'
+      local function map(mode, l, r, opts)
+        opts = opts or {}
+        vim.keymap.set(mode, l, r, opts)
+      end
+
+      -- Navigation
+      map('n', ']c', function()
+        if vim.wo.diff then
+          vim.cmd.normal { ']c', bang = true }
+        else
+          gitsigns.nav_hunk 'next'
+        end
+      end)
+
+      map('n', '[c', function()
+        if vim.wo.diff then
+          vim.cmd.normal { '[c', bang = true }
+        else
+          gitsigns.nav_hunk 'prev'
+        end
+      end)
+
+      -- Actions
+      map('n', '<leader>hs', gitsigns.stage_hunk)
+      map('n', '<leader>hr', gitsigns.reset_hunk)
+      map('v', '<leader>hs', function()
+        gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+      end)
+      map('v', '<leader>hr', function()
+        gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+      end)
+      map('n', '<leader>hS', gitsigns.stage_buffer)
+      map('n', '<leader>hu', gitsigns.undo_stage_hunk)
+      map('n', '<leader>hR', gitsigns.reset_buffer)
+      map('n', '<leader>hp', gitsigns.preview_hunk)
+      map('n', '<leader>hb', function()
+        gitsigns.blame_line { full = true }
+      end)
+      map('n', '<leader>tb', gitsigns.toggle_current_line_blame)
+      map('n', '<leader>hd', gitsigns.diffthis, { desc = 'Preview diff' })
+      map('n', '<leader>hD', function()
+        gitsigns.diffthis '~'
+      end)
+      map('n', '<leader>td', gitsigns.toggle_deleted)
+
+      -- Text object
+      map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+    end,
   },
   { -- Adds better Git support
     'tpope/vim-fugitive',
@@ -295,6 +345,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>to', group = '[TO]ggle' },
+        { '<leader>a', group = '[A]llure' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       }
     end,
@@ -411,41 +462,6 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
-  { --- NOTE: file explorer here
-    'nvim-tree/nvim-tree.lua',
-    opts = {
-      sort = {
-        sorter = 'case_sensitive',
-      },
-      view = {
-        width = 30,
-      },
-      renderer = {
-        group_empty = true,
-      },
-      filters = {
-        dotfiles = true,
-      },
-    },
-    config = function()
-      -- disable netrw at the very start of your init.lua
-      vim.g.loaded_netrw = 1
-      vim.g.loaded_netrwPlugin = 1
-
-      -- optionally enable 24-bit colour
-      vim.opt.termguicolors = true
-      require('nvim-tree').setup {}
-    end,
-    keys = {
-      {
-        '<leader>e',
-        function()
-          require('nvim-tree.api').tree.open { find_file = true }
-        end,
-        desc = 'Op[E]n tree',
-      },
-    },
-  },
   { --- NOTE: working with tabs
     'romgrk/barbar.nvim',
     dependencies = {
@@ -459,6 +475,7 @@ require('lazy').setup({
       map('n', '<C-p>', '<Cmd>BufferPrevious<CR>', opts)
       map('n', '<C-n>', '<Cmd>BufferNext<CR>', opts)
       map('n', '<C-c>', '<Cmd>BufferClose<CR>', opts)
+      map('n', '<C-r>', '<Cmd>BufferRestore<CR>', opts)
     end,
     opts = {},
   },
@@ -482,6 +499,7 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
+      local util = require 'lspconfig.util'
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -626,17 +644,29 @@ require('lazy').setup({
         gopls = {
           settings = {
             gopls = {
-              buildFlags = { '-tags=e2e' },
+              buildFlags = { '-tags=e2e,integration' },
             },
           },
         },
         tsserver = {
           settings = {
-            completions = {
-              completeFunctionCalls = true,
+            tsserver = {
+              completions = {
+                completeFunctionCalls = true,
+              },
             },
           },
         },
+        html = {},
+        jsonls = {},
+        -- jsonls = {
+        --   settings = {
+        --     json = {
+        --       -- Schemas https://www.schemastore.org
+        --       schemas = {
+        --         {
+        --           description = 'TypeScript compiler configuration file',
+        --           fileMatch = { 'tsconfig*.json' },
         -- pylsp
         -- pyright = {},
         -- rust_analyzer = {},
@@ -680,6 +710,7 @@ require('lazy').setup({
         'stylua', -- Used to format Lua code
         'typescript-language-server', -- typescript
         'gopls', -- golang
+        'jsonls', -- json schema validator
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -983,11 +1014,11 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
