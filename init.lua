@@ -287,27 +287,27 @@ require('lazy').setup({
       end)
 
       -- Actions
-      map('n', '<leader>hs', gitsigns.stage_hunk)
-      map('n', '<leader>hr', gitsigns.reset_hunk)
-      map('v', '<leader>hs', function()
+      map('n', '<leader>gs', gitsigns.stage_hunk, { desc = '[s]tage hunk' })
+      map('n', '<leader>gr', gitsigns.reset_hunk, { desc = '[r]eset hunk' })
+      map('v', '<leader>gs', function()
         gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
       end)
-      map('v', '<leader>hr', function()
+      map('v', '<leader>gr', function()
         gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
       end)
-      map('n', '<leader>hS', gitsigns.stage_buffer)
-      map('n', '<leader>hu', gitsigns.undo_stage_hunk)
-      map('n', '<leader>hR', gitsigns.reset_buffer)
-      map('n', '<leader>hp', gitsigns.preview_hunk)
-      map('n', '<leader>hb', function()
+      map('n', '<leader>gS', gitsigns.stage_buffer, { desc = '[S]Stage buffer' })
+      map('n', '<leader>gu', gitsigns.undo_stage_hunk, { desc = '[u]ndo stage hunk' })
+      map('n', '<leader>gR', gitsigns.reset_buffer, { desc = '[R]eset buffer' })
+      map('n', '<leader>gp', gitsigns.preview_hunk, { desc = '[p]review hunk' })
+      map('n', '<leader>gb', function()
         gitsigns.blame_line { full = true }
       end)
-      map('n', '<leader>tb', gitsigns.toggle_current_line_blame)
-      map('n', '<leader>hd', gitsigns.diffthis, { desc = 'Preview diff' })
-      map('n', '<leader>hD', function()
+      map('n', '<leader>gb', gitsigns.toggle_current_line_blame, { desc = 'Toggle current line [b]lame' })
+      map('n', '<leader>gd', gitsigns.diffthis, { desc = 'Preview [d]iff' })
+      map('n', '<leader>gD', function()
         gitsigns.diffthis '~'
-      end)
-      map('n', '<leader>td', gitsigns.toggle_deleted)
+      end, { desc = 'Preview [D]iff' })
+      map('n', '<leader>ge', gitsigns.toggle_deleted, { desc = 'Toggle d[e]leted' })
 
       -- Text object
       map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
@@ -346,7 +346,8 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>to', group = '[TO]ggle' },
         { '<leader>a', group = '[A]llure' },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
+        { '<leader>t', group = '[T]est' },
       }
     end,
   },
@@ -645,6 +646,10 @@ require('lazy').setup({
           settings = {
             gopls = {
               buildFlags = { '-tags=e2e,integration' },
+              analyses = {
+                unusedparams = true,
+              },
+              staticcheck = true,
             },
           },
         },
@@ -659,6 +664,7 @@ require('lazy').setup({
         },
         html = {},
         jsonls = {},
+        -- sqls = {},
         -- jsonls = {
         --   settings = {
         --     json = {
@@ -899,20 +905,29 @@ require('lazy').setup({
       }
     end,
   },
-  { --- AI Autocompletion
-    'Exafunction/codeium.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'hrsh7th/nvim-cmp',
-    },
-    config = function()
-      require('codeium').setup {}
-    end,
-    opts = {
-      enable_chat = true,
-      api = {
-        port = 443,
-      },
+  -- { --- AI Autocompletion
+  --   'Exafunction/codeium.nvim',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'hrsh7th/nvim-cmp',
+  --   },
+  --   config = function()
+  --     require('codeium').setup {}
+  --   end,
+  --   opts = {
+  --     enable_chat = true,
+  --     api = {
+  --       port = 443,
+  --     },
+  --   },
+  -- },
+  {
+    { -- self-hosted AI Autocompletion
+      'TabbyML/vim-tabby',
+      init = function()
+        --- Add config here. Example config:
+        vim.g.tabby_keybinding_accept = '<C-y>'
+      end,
     },
   },
   { -- You can easily change to a different colorscheme.
@@ -1018,7 +1033,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
