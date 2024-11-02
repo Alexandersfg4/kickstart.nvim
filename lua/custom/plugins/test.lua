@@ -50,17 +50,9 @@ local function run_command(command, cwd, on_exit, silent)
   else
     -- Create a new buffer and window for output
     local buf = vim.api.nvim_create_buf(false, true)
-    win = vim.api.nvim_open_win(buf, true, {
-      title = command,
-      title_pos = 'center',
-      anchor = 'nw',
-      relative = 'editor',
-      width = vim.o.columns - 50,
-      height = math.floor(vim.o.lines * 0.4),
-      col = 45,
-      row = math.floor(vim.o.lines * 0.5),
-      style = 'minimal',
-      border = 'rounded',
+    win = vim.api.nvim_open_win(buf, false, {
+      split = 'right',
+      win = 0,
     })
 
     job_id = vim.fn.jobstart(command, {

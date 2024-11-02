@@ -645,17 +645,18 @@ require('lazy').setup({
         gopls = {
           settings = {
             gopls = {
-              buildFlags = { '-tags=e2e,integration' },
+              buildFlags = { '-tags=e2e,integration,smoke' },
               analyses = {
                 unusedparams = true,
               },
               staticcheck = true,
             },
           },
+          filetypes = { 'go', 'gowork', 'gotmpl' },
         },
-        tsserver = {
+        ts_ls = {
           settings = {
-            tsserver = {
+            ts_ls = {
               completions = {
                 completeFunctionCalls = true,
               },
@@ -924,9 +925,16 @@ require('lazy').setup({
   {
     { -- self-hosted AI Autocompletion
       'TabbyML/vim-tabby',
+      lazy = false,
+      dependencies = {
+        'neovim/nvim-lspconfig',
+      },
       init = function()
+        vim.g.tabby_agent_start_command = { 'npx', 'tabby-agent', '--stdio' }
+        vim.g.tabby_inline_completion_trigger = 'auto'
         --- Add config here. Example config:
-        vim.g.tabby_keybinding_accept = '<C-y>'
+        vim.g.tabby_inline_completion_keybinding_accept = '<C-y>'
+        vim.g.tabby_inline_completion_keybinding_trigger_or_dismiss = '<C-s>'
       end,
     },
   },
@@ -1028,7 +1036,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
