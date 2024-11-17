@@ -475,7 +475,7 @@ require('lazy').setup({
       local opts = { noremap = true, silent = true }
       map('n', '<C-p>', '<Cmd>BufferPrevious<CR>', opts)
       map('n', '<C-n>', '<Cmd>BufferNext<CR>', opts)
-      map('n', '<C-c>', '<Cmd>BufferClose<CR>', opts)
+      map('n', '<C-q>', '<Cmd>BufferClose<CR>', opts)
       map('n', '<C-r>', '<Cmd>BufferRestore<CR>', opts)
     end,
     opts = {},
@@ -830,6 +830,7 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       -- See `:help cmp`
@@ -901,27 +902,11 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
-          { name = 'codeium' },
+          { name = 'buffer' },
         },
       }
     end,
   },
-  -- { --- AI Autocompletion
-  --   'Exafunction/codeium.nvim',
-  --   dependencies = {
-  --     'nvim-lua/plenary.nvim',
-  --     'hrsh7th/nvim-cmp',
-  --   },
-  --   config = function()
-  --     require('codeium').setup {}
-  --   end,
-  --   opts = {
-  --     enable_chat = true,
-  --     api = {
-  --       port = 443,
-  --     },
-  --   },
-  -- },
   {
     { -- self-hosted AI Autocompletion
       'TabbyML/vim-tabby',
@@ -932,10 +917,52 @@ require('lazy').setup({
       init = function()
         vim.g.tabby_agent_start_command = { 'npx', 'tabby-agent', '--stdio' }
         vim.g.tabby_inline_completion_trigger = 'auto'
-        --- Add config here. Example config:
-        vim.g.tabby_inline_completion_keybinding_accept = '<C-y>'
-        vim.g.tabby_inline_completion_keybinding_trigger_or_dismiss = '<C-s>'
+        vim.g.tabby_inline_completion_keybinding_accept = '<Tab>'
+        vim.g.tabby_inline_completion_keybinding_trigger_or_dismiss = '<C-c>'
       end,
+    },
+  },
+  -- GPT API GATEWAY
+  {
+    'olimorris/codecompanion.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+      'hrsh7th/nvim-cmp', -- Optional: For using slash commands and variables in the chat buffer
+      'nvim-telescope/telescope.nvim', -- Optional: For using slash commands
+      { 'MeanderingProgrammer/render-markdown.nvim', ft = { 'markdown', 'codecompanion' } }, -- Optional: For prettier markdown rendering
+      { 'stevearc/dressing.nvim', opts = {} }, -- Optional: Improves `vim.ui.select`
+    },
+    config = true,
+    opts = {
+      strategies = {
+        chat = {
+          adapter = 'gateway',
+        },
+        inline = {
+          adapter = 'gateway',
+        },
+      },
+      adapters = {
+        -- adaper for Qwen2.5.1-Coder-7B-Instruct-Q5_K_M
+        coder = function()
+          return require('codecompanion.adapters').extend('openai_compatible', {
+            env = {
+              url = 'http://localhost:8080',
+            },
+          })
+        end,
+        -- adapter for openAI gateway
+        gateway = function()
+          return require('codecompanion.adapters').extend('openai_compatible', {
+            env = {
+              url = 'GPT_GATEWAY_URL',
+              api_key = 'GPT_GATEWAY_TOKEN',
+              chat_url = '/v1/chat/completions',
+            },
+          })
+        end,
+      },
     },
   },
   { -- You can easily change to a different colorscheme.
@@ -949,7 +976,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'tokyonight-moon'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
