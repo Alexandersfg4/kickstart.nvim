@@ -20,6 +20,18 @@ return {
           ['\\'] = 'close_window',
         },
       },
+      filtered_items = {
+        visible = false, -- when true, they will just be displayed differently than normal items
+        hide_dotfiles = false,
+        hide_gitignored = false,
+        hide_hidden = true, -- only works on Windows for hidden files/directories
+        hide_by_name = {
+          --"node_modules"
+        },
+      },
     },
+    close_if_last_window = true,
+    enable_git_status = true,
+    enable_diagnostics = true,
   },
 }
