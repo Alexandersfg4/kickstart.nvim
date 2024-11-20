@@ -475,7 +475,7 @@ require('lazy').setup({
       local opts = { noremap = true, silent = true }
       map('n', '<C-p>', '<Cmd>BufferPrevious<CR>', opts)
       map('n', '<C-n>', '<Cmd>BufferNext<CR>', opts)
-      map('n', '<C-q>', '<Cmd>BufferClose<CR>', opts)
+      map('n', '<leader>c', '<Cmd>BufferClose<CR>', opts)
       map('n', '<C-r>', '<Cmd>BufferRestore<CR>', opts)
     end,
     opts = {},
@@ -959,6 +959,11 @@ require('lazy').setup({
               url = 'GPT_GATEWAY_URL',
               api_key = 'GPT_GATEWAY_TOKEN',
               chat_url = '/v1/chat/completions',
+            },
+            schema = {
+              model = {
+                default = 'd',
+              },
             },
           })
         end,
