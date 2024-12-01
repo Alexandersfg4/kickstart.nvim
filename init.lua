@@ -665,7 +665,7 @@ require('lazy').setup({
         },
         html = {},
         jsonls = {},
-        -- sqls = {},
+        sqlls = {},
         -- jsonls = {
         --   settings = {
         --     json = {
@@ -831,12 +831,36 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-buffer',
+      'nvim-lua/plenary.nvim',
+      'tzachar/cmp-ai',
     },
     config = function()
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      local cmp_ai = require 'cmp_ai.config'
+
       luasnip.config.setup {}
+      cmp_ai:setup {
+        max_lines = 1000,
+        provider = 'Tabby',
+        notify = true,
+        provider_options = {
+          -- These are optional
+          -- user = 'yourusername',
+          -- temperature = 0.2,
+          -- seed = 'randomstring',
+        },
+        notify_callback = function(msg)
+          vim.notify(msg)
+        end,
+        run_on_every_keystroke = true,
+        ignored_file_types = {
+          -- default is not to ignore
+          -- uncomment to ignore in lua:
+          -- lua = true
+        },
+      }
 
       cmp.setup {
         snippet = {
@@ -903,24 +927,10 @@ require('lazy').setup({
           { name = 'luasnip' },
           { name = 'path' },
           { name = 'buffer' },
+          { name = 'cmp_ai' },
         },
       }
     end,
-  },
-  {
-    { -- self-hosted AI Autocompletion
-      'TabbyML/vim-tabby',
-      lazy = false,
-      dependencies = {
-        'neovim/nvim-lspconfig',
-      },
-      init = function()
-        vim.g.tabby_agent_start_command = { 'npx', 'tabby-agent', '--stdio' }
-        vim.g.tabby_inline_completion_trigger = 'auto'
-        vim.g.tabby_inline_completion_keybinding_accept = '<Tab>'
-        vim.g.tabby_inline_completion_keybinding_trigger_or_dismiss = '<C-c>'
-      end,
-    },
   },
   -- GPT API GATEWAY
   {
@@ -962,7 +972,7 @@ require('lazy').setup({
             },
             schema = {
               model = {
-                default = 'd',
+                default = 'gpt-4o-mini',
               },
             },
           })
