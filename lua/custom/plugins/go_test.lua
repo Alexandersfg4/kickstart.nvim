@@ -185,9 +185,10 @@ vim.api.nvim_set_keymap('n', '<leader>ta', '<Cmd>TestAll<CR>', { noremap = true,
 vim.api.nvim_set_keymap('n', '<leader>tp', '<Cmd>StopRunningTest<CR>', { noremap = true, silent = true, desc = 'Sto[p] currently running test' })
 vim.api.nvim_set_keymap('n', '<leader>tc', '<Cmd>ChangeTag<CR>', { noremap = true, silent = true, desc = '[c]hange tag' })
 
+---@type LazySpec
 return {
-  dir = 'test',
-  name = 'Test',
-  desc = 'Test tools',
+  dir = '.',
+  name = 'Go test',
+  desc = 'Got test tools with allure and etc.',
   lazy = true,
 }

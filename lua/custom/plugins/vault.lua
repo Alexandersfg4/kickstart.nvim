@@ -101,7 +101,7 @@ end, { nargs = 1, complete = 'file', desc = 'Set CI_COMMIT_BRANCH env variable' 
 
 ---@type LazySpec
 return {
-  dir = 'update_vault_token',
+  dir = '.',
   init = function()
     -- Set VAULT_TOKEN from existed file ~/.vault-token
     local path = vim.fn.expand('~', false) .. vault_token_storage
